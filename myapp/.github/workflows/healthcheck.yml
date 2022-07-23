@@ -1,0 +1,16 @@
+name: scheduled healthcheck
+on:
+  schedule:
+    - cron: "* 1 * * *"
+jobs:
+  healthcheck:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check the deployed service URL
+        uses: jtalk/url-health-check-action@v2
+        with:
+          url: https://shielded-shore-74120.herokuapp.com/health
+          follow-redirect: false
+          max-attempts: 3
+          retry-delay: 5s
+          retry-all: false
