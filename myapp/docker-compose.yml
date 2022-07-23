@@ -1,0 +1,37 @@
+services:
+  nginx:
+    image: nginx:1.20.1
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/nginx.prod.conf:ro
+    ports:
+      - 8000:100
+    container_name: reverse-proxy-prod
+    depends_on:
+      - app-front
+      - app-back
+
+  app-back:
+    image: myapp-prod-back
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
+    volumes:
+      - ./backend/:/usr/src/app/
+    environment:
+      MONGO_URL: mongodb://the_username:the_password@mongo:27017/the_database
+    ports:
+      - 3001:3001
+    container_name: myapp-prod-back
+
+  app-front:
+    image: myapp-prod-front
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
+    volumes:
+      - ./frontend/:/usr/src/app/
+    ports:
+      - 3000:80
+    depends_on:
+      - app-back
+    container_name: myapp-prod-front

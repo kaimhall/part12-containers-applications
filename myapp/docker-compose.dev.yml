@@ -1,0 +1,40 @@
+services:
+  app-back:
+    image: myapp-dev-back
+    build:
+      context: . 
+      dockerfile: ./backend/dev.Dockerfile
+    volumes:
+      - ./backend/:/usr/src/app/
+    environment:
+      MONGODB_URI: mongodb+srv://kaimhall:hall4920@cluster0.qmjnq.mongodb.net/phonebook?retryWrites=true&w=majority
+    ports:
+      - 3001:3001
+    container_name: myapp-dev-back
+
+  app-front:
+    image: myapp-dev-front
+    build:
+      context: .
+      dockerfile: ./frontend/dev.Dockerfile
+    volumes:
+      - ./frontend/:/usr/src/app/
+    ports:
+      - 3000:3000  
+    container_name: myapp-dev-front
+    depends_on:
+      - app-back
+
+  nginx:
+    image: nginx:1.20.1
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - 8000:100
+    container_name: reverse-proxy-dev
+    depends_on: 
+      - app-back
+      - app-front
+
+  debug-helper:
+    image: busybox
