@@ -1,30 +1,28 @@
 services:
   app-front:
-    image: todo-front-dev
+    image: front-prod
     build:
       context: .
-      dockerfile: ./todo-frontend/Dockerfile_dev
+      dockerfile: ./todo-frontend/Dockerfile_prod
     volumes:
-      - ./todo-frontend/:/usr/src/todo-app/
+      - ./todo-frontend/:/usr/src/app/
     ports:
-      - 3000:3000
-    container_name: todo-front-dev
-    depends_on:
-      - app-back
-
+      - 3000:80
+    container_name: todo-front-prod
+  
   app-back:
-    image: todo-back-dev
+    image: back-prod
     build:
       context: .
-      dockerfile: ./todo-backend/Dockerfile_dev
+      dockerfile: ./todo-backend/Dockerfile_prod
     volumes:
-      - ./todo-backend:/usr/src/todo-app/
+      - ./todo-backend:/usr/src/app/
     environment:
       MONGO_URL: mongodb://the_username:the_password@mongo:27017/the_database
       REDIS_URL: redis://redis:6379
     expose:
-      - 3001 
-    container_name: todo-back-dev
+      - 3001
+    container_name: todo-back-prod
 
   mongo:
     image: mongo
@@ -37,7 +35,7 @@ services:
     volumes:
       - ./todo-backend/mongo/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js
       - ./todo-backend/mongo_data:/data/db
-
+  
   redis:
     image: redis
     expose:
@@ -46,18 +44,15 @@ services:
     volumes:
       - ./todo-backend/redis_data:/data
 
-  debug-helper:
-    image: busybox
-
   nginx:
     image: nginx:1.20.1
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
-      - 8000:80
-    container_name: reverse-proxy
+      - 8000:100
+    container_name: reverse-proxy-prod
     depends_on:
-      - app-front 
+      - app-front
       - app-back
       - mongo
       - redis
